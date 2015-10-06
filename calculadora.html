@@ -1,0 +1,347 @@
+<!doctype html>
+<html>
+<head>
+	<title>Calculadora JS</title>
+	<!-- Compiled and minified CSS -->
+  	<link rel="stylesheet" href="css/alertify.min.css">
+  	<link rel="stylesheet" href="css/materialize.min.css">
+
+
+	<style type="text/css">
+	
+	*{
+		/*border: 1px solid;*/
+		padding: 0px;
+		margin: 0px;
+	}
+	.content{
+
+	}
+	.numeros{
+		width: 78px;
+		float: left;
+		height: 80px;
+	}
+	.operaciones{
+		width: 20px;
+		height: 80px;
+		float: left;
+	}
+	.resultado{
+		width: 100px;
+		float: right;
+		text-align: right;
+	}
+	.contenedorResultado{
+		width: 100px;
+	}
+	.operaciones button{
+		width: 20px;
+	}
+	.numeros button{
+		width: 20px;
+	}
+	.pila{
+		
+		float: left;
+	}
+	.numeros .clean{
+		width: 90%;
+	}
+	
+	</style>
+</head>
+<body>
+<div class="container">
+	<div class="row ">
+		<div class="col s5 teal lighten-5">
+			<div class="col s12">
+				<div class="input-field">
+		          <h5><input id="resultado" type="text" disabled class="validate right-align"></h5>
+		          <label for="resultado">Resultado</label>
+		        </div>				
+			</div>
+			<div class="col s9  center mismoalto" >
+				<div class="container-fluid">
+					<div class="row">
+						<button class="waves-effect waves-teal btn-flat" value="1" id="1" onClick="nuevoNumero(this)">1</button>
+						<button class="waves-effect waves-teal btn-flat" value="2" id="2" onClick="nuevoNumero(this)">2</button>
+						<button class="waves-effect waves-teal btn-flat" value="3" id="3" onClick="nuevoNumero(this)">3</button>
+					</div>
+					<div class="row">
+						<button class="waves-effect waves-teal btn-flat" value="4" id="4" onClick="nuevoNumero(this)">4</button>
+						<button class="waves-effect waves-teal btn-flat" value="5" id="5" onClick="nuevoNumero(this)">5</button>
+						<button class="waves-effect waves-teal btn-flat" value="6" id="6" onClick="nuevoNumero(this)">6</button>
+					</div>
+					<div class="row">
+						<button class="waves-effect waves-teal btn-flat" value="7" id="7" onClick="nuevoNumero(this)">7</button>
+						<button class="waves-effect waves-teal btn-flat" value="8" id="8" onClick="nuevoNumero(this)">8</button>
+						<button class="waves-effect waves-teal btn-flat" value="9" id="9" onClick="nuevoNumero(this)">9</button>
+					</div>
+					<div class="row">
+						<button class="waves-effect waves-teal btn-flat" value="." id="." onClick="nuevoNumero(this)">.</button>
+						<button class="waves-effect waves-teal btn-flat" value="0" id="0" onClick="nuevoNumero(this)">0</button>
+						<button class="waves-effect waves-teal btn-flat" onClick="resultadoIgual()" value="=" id="igual">=</button>
+					</div>
+					<div class="row">
+						<button class="waves-effect waves-teal btn-flat" onClick="clean()" class="clean">C</button>					
+					</div>
+				</div>
+			</div>			
+			<div class="col s3 center mismoalto purple lighten-5" style="border-bottom:1px;">
+				<button class="waves-effect waves-teal btn-flat" onClick="nuevaOperacion(this)" value="+" id="suma">+</button><br>
+				<button class="waves-effect waves-teal btn-flat" onClick="nuevaOperacion(this)" value="-" id="resta">-</button><br>
+				<button class="waves-effect waves-teal btn-flat" onClick="nuevaOperacion(this)" value="*" id="multiplicacion">x</button><br>
+				<button class="waves-effect waves-teal btn-flat" onClick="nuevaOperacion(this)" value="/" id="divicion">/</button><br>
+				<button class="waves-effect waves-teal btn-flat" onClick="nuevaOperacion(this)" value="raiz" id="raiz">&#8730;</button><br>
+			</div>			
+		</div>			
+		<div class="col s7" style="height:266px; overflow: scroll;">
+				<div class="center"><h5 id="limpiarPila">Pila de Operaciones</h5></div>
+				<div class="left-align"></div>
+				<table class="centered striped">
+			        <tbody id="pila">
+			        </tbody>
+			      </table>
+			</div>
+	</div>
+</div>
+	<!--Zona Javascript-->
+	<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="js/alertify.min.js"></script>
+	<script type="text/javascript" src="js/jstorage.js"></script>
+	<script type="text/javascript" src="js/materialize.min.js"></script>
+	<script type="text/javascript">
+		var primerNumero = new String();
+		//var primerNumeroAux = new String();
+		var segundoNumero = new String();
+		var operacion = new String();
+		var resultado = 0;
+		var pilaDeOperaciones = new Array();
+		var primerNumeroBool = true;
+		var puntoDecimal = true;
+		/*Sistema de pila de operaciones*/
+		var operador = new Object();
+		var pila = new Array();
+		$(document).ready(function () {
+			primerNumero = "0";
+			//var primerNumeroAux = new String();
+			 segundoNumero = "0";
+			 operacion = "+";
+			/*Logica de la calculadora
+			- tomara todos los numeros que se le undan como un numero
+			- selecciona la operacion a realizar
+			- todos los numeros que seundan despues de la operacion se considera segundo numero
+			- 
+			*/
+			/*Funciones*/
+			/* 
+			- suma /
+			- resta /
+			- divicion /
+			- multiplicacion /
+			- invertir (negativo)
+			- raiz cuadrada /
+			- escribir lo que se esta haciendo en pantalla
+			*/
+
+			/*Errores:*/
+			/*Cuando haces 2+2=+2= 2+2= Error
+			No pone el primer numero como el primero*/
+			//localStorage.pila = JSON.stringify(pila);
+			try{							
+				pila = JSON.parse(localStorage.pila);
+				mostrarPila(pila);					
+			}catch(e){
+				console.log(e);
+			}
+			console.log(pila);
+			//para que los div sean del mismo alto
+			var altomax = 0;  
+		    $('.mismoalto').each(function(){  
+		        if($(this).height() > altomax){  
+		            altomax = $(this).height();  
+		        }  
+		    });  
+		    $('.mismoalto').height(altomax);
+
+				//borrarStorage();
+				$("#limpiarPila").click(function () {
+					alertify.alert("Se Borro la pila de operaciones");
+					borrarStorage();
+					mostrarPila(pila);
+				})
+		});
+
+
+		/*Localstorage*/
+		// Store
+		//localStorage.setItem("lastname", "Smith");
+		// Retrieve
+		//$("#resultado").html(localStorage.getItem("pila"));
+		/*LocalStorage*/
+
+		function sumamdo (primero, segundo) {
+			resultado = primero + segundo;
+			return resultado;
+		}
+		function resta (primero, segundo) {
+			resultado = primero - segundo;
+			return resultado;
+		}
+		function multiplicacion (primero, segundo) {
+			resultado = primero * segundo;
+			return resultado;
+		}
+		function divicion (primero, segundo) {
+			if(segundoNumero == 0){
+				resultado = 0;
+			}else{
+				resultado = primero / segundo;
+			}
+			return resultado;
+		}			
+		function raiz (primero) {
+			try{
+				resultado = Math.sqrt(primero);				
+				
+			}catch(e){
+				console.log(e);
+			}
+			return resultado;
+		}
+		function nuevoNumero(numero){
+			if(primerNumeroBool){
+				if(puntoDecimal){
+					primerNumero += numero.value;
+					if(numero.value == "."){
+						puntoDecimal = false;
+					}
+				}else{
+					if(numero.value != "."){
+						primerNumero += numero.value;						
+					}
+				}
+				
+				console.log(primerNumero);
+				console.log(segundoNumero);
+			}else{
+				//significa que es el segundo numero se hace lo mismo
+				if(puntoDecimal){
+					segundoNumero += numero.value;
+					if(numero.value == "."){
+						puntoDecimal = false;
+					}
+				}else{
+					if(numero.value != "."){
+						segundoNumero += numero.value;
+					}
+				}							
+				console.log(primerNumero);
+				console.log(segundoNumero);
+			}
+		}
+		function borrarStorage () {
+			localStorage.pila = "[]";
+			try{
+				pila = JSON.parse(localStorage.pila);
+			}catch(e){				
+				console.log(e);
+			}			
+		}
+		function crearStorage () {
+			try{
+				localStorage.pila = JSON.stringify(pila);
+			}catch(e){
+				console.warnig(e);
+			}
+		}
+		function nuevaOperacion (o) {
+			primerNumeroBool = false;
+			operacion = o.value;
+			console.log(operacion);
+		}
+		function resultadoIgual () {
+			//if($.isNumeric(primerNumero) && $.isNumeric(segundoNumero)){//validamos los dos numeros
+				//return false;
+			//}
+			//falta castear las variables por enteros o por float
+			//reseteamos todo a como debe de estar al principio
+			primerNumero = parseFloat(primerNumero);
+			segundoNumero = parseFloat(segundoNumero);
+			switch (operacion){
+				case "+":
+					resultado = sumamdo(primerNumero,segundoNumero);
+				break;
+				case "-":
+					resultado = resta(primerNumero,segundoNumero);
+				break;
+				case "*":
+					resultado = multiplicacion(primerNumero,segundoNumero);
+				break;
+				case "/":
+					 resultado = divicion(primerNumero,segundoNumero);
+				break;
+				case "raiz":
+					 resultado = raiz(primerNumero);
+				break;
+				default:
+					 resultado = 0;
+				break;
+			}
+			console.log(resultado);
+			//primerNumero = resultado;
+			$("#resultado").val(resultado);
+			apilando();
+			mostrarPila(pila);
+			//resert(true);
+			clean();
+		}
+		function clean () {
+			primerNumero = "0";
+			resultado = 0;
+			primerNumeroBool = true;
+			puntoDecimal = true;			
+			segundoNumero = "0";			
+			operador = new Object();
+			primerNumeroBool = true;
+			$("#resultado").html("0");
+		}
+		function resert () {	
+			primerNumero = new String();
+			//resultado = 0;
+			primerNumeroBool = true;
+			puntoDecimal = true;			
+			segundoNumero = new String();			
+			//operador = new Object();
+			primerNumeroBool = true;
+			
+		}			
+		function apilando () {
+			operador.primerNumero = primerNumero;
+			operador.segundoNumero = segundoNumero;
+			operador.operacion = operacion;
+			operador.resultado = resultado;
+			
+			pila.push(operador);
+			localStorage.pila = JSON.stringify(pila);
+			$("#pila").html("");
+			
+		}
+		function mostrarPila (pilaDeOperacionesLocalStorage) {
+			$("#pila").html("");
+			for (var i = 0; i < pilaDeOperacionesLocalStorage.length; i++) {	
+			//$("#resultado").val(pilaDeOperacionesLocalStorage[i].resultado);
+				$("#pila").prepend("<tr>"+
+							        "<td>"+pilaDeOperacionesLocalStorage[i].primerNumero+"</td>"+
+							        "<td>"+pilaDeOperacionesLocalStorage[i].operacion+"</td>"+
+							        "<td>"+pilaDeOperacionesLocalStorage[i].segundoNumero+"</td>"+
+						            "<td>=</td>"+
+						            "<td>"+pilaDeOperacionesLocalStorage[i].resultado+"</td>"+
+						            "<td>"+i+"</td>"+
+						        "</tr>");
+			};
+		}
+	</script>
+</body>
+</html>
